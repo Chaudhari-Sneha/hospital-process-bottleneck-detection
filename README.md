@@ -265,7 +265,7 @@ it — so any of these work:
 |---|---|---|
 | **Groq** (`openai/gpt-oss-120b`) | free tier, no card | **hosting**, or you want the strongest reasoning |
 | **Ollama** (local) | free | you want nothing to leave the machine |
-git status
+
 
 **Hosting note:** Ollama listens on `localhost`, so it does not exist on a
 deployed server. A hosted copy of this app needs Groq (or another reachable
