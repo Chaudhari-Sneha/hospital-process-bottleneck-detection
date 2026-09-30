@@ -1,0 +1,427 @@
+# =============================================================================
+# CALIBRATION PARAMETERS for the synthetic Indian hospital log (Steps 3 and 4)
+# =============================================================================
+#
+# THE RULE (project standing design rule): every parameter carries a `source`.
+# "Where did 95 minutes come from?" must be answerable by opening this one file.
+#
+# Each parameter also carries a `status`, because a source alone still lets a
+# guess hide in plain sight:
+#
+#   verified    - primary document read in full, OR measured by us from the real
+#                 Sepsis log with a named script. Safe to quote.
+#   secondary   - a real citation, but the original has not been read in context.
+#                 Usable, but say so in the report. (Step 2c lesson: a number
+#                 known only through a search summary is hearsay, not evidence.)
+#   placeholder - a working guess with NO source yet. MUST be replaced before any
+#                 result that depends on it is quoted anywhere.
+#
+# Why the third value exists: a number you invented and a number you verified
+# look identical once they are a float in a Python file. This makes the gaps
+# visible and countable instead of letting them dissolve into the code.
+#
+# `src/06_check_calibration.py` counts them and refuses to certify a run whose
+# headline outputs depend on a placeholder.
+#
+# TRANSFER ASSUMPTION - state this in the report, do not bury it:
+#   The real log we validated against (Sepsis, Steps 1-2) is a DUTCH hospital.
+#   We calibrate process STRUCTURE from it - the lab repeat-test loop, the ward
+#   cadence, the lab-to-discharge handoff - because we measured those ourselves.
+#   We do NOT assume the MAGNITUDES transfer to an Indian hospital. Every
+#   parameter therefore declares `applies_to: structure` or `applies_to: magnitude`
+#   so the two kinds of borrowing are never confused.
+# =============================================================================
+
+meta:
+  version: 1
+  created: 2026-09-17
+  purpose: >
+    Parameters for the SimPy generator that produces a synthetic Indian hospital
+    event log with BOTH start and complete timestamps, tagged by payment_mode,
+    so that queueing time and processing time can be separated - the one thing
+    the real Sepsis log provably cannot do (proven in Step 1).
+  status_values: [verified, secondary, assumption, placeholder]
+
+# -----------------------------------------------------------------------------
+# 1. REGULATORY DEADLINES - the clock the process is measured against
+# -----------------------------------------------------------------------------
+# These are the Indian equivalent of the Sepsis log's "antibiotics within 1 hour"
+# clinical target: a mandated deadline that a real process routinely misses.
+regulatory:
+  source_document:
+    reference: "IRDAI/HLT/CIR/PRO/84/5/2024"
+    date: "2024-05-29"
+    title: "Master Circular on IRDAI (Insurance Products) Regulations 2024 - Health Insurance"
+    url: "https://irdai.gov.in/health-dept"
+    status: verified
+    source: "the circular PDF itself, page 2 header - retrieved from irdai.gov.in"
+    note: >
+      Reference number and date read from page 2 of the circular PDF itself, not
+      from a secondary source. Secondary sources circulate a second number
+      (IRDAI/HLT/CIR/MISC/77/05/2024) which does NOT appear on this document -
+      cite the one above.
+
+  cashless_preauth_decision_max:
+    value: 60
+    unit: minutes
+    applies_to: magnitude
+    status: verified
+    source: "IRDAI/HLT/CIR/PRO/84/5/2024, clause 15(b)"
+    quote: >
+      "Insurer shall decide on the request for cashless authorization immediately
+      but not more than one hour of receipt of request. Necessary systems and
+      procedures shall be put in place by the Insurer immediately and not later
+      than 31st July, 2024."
+
+  discharge_final_authorization_max:
+    value: 180
+    unit: minutes
+    applies_to: magnitude
+    status: verified
+    source: "IRDAI/HLT/CIR/PRO/84/5/2024, clause 16(a)"
+    quote: >
+      "Insurer shall grant final authorization within three hours of the receipt
+      of discharge authorization request from the hospital. In no case, the
+      policyholder shall be made to wait to be discharged from the Hospital."
+
+  breach_penalty:
+    value: "insurer bears the additional hospital charges"
+    status: verified
+    source: "IRDAI/HLT/CIR/PRO/84/5/2024, clause 16(b)"
+    quote: >
+      "If there is any delay beyond three hours, the additional amount if any
+      charged by the hospital shall be borne by the insurer from shareholder's
+      fund."
+    note: >
+      RESOLVED. The word "shareholder's" was initially lost in text extraction
+      because the circular renders it in a DIFFERENT EMBEDDED FONT (/F6) as
+      CID-encoded glyph IDs, while the rest of the sentence is in /F4 as plain
+      text. Recovered by decoding the glyph run
+      <0056004B><0044><00550048004B><0052><004F00470048><005500B6><0056>
+      (GIDs 86,75,68,85,72,75,82,79,71,72,85,182,86; this subset font maps
+      GID+29 to ASCII, and GID 182 is the typographic apostrophe) -> "shareholder's".
+      Verified from the PDF itself, not from secondary sources, which happened to
+      agree. Safe to quote clause 16(b) verbatim.
+
+# -----------------------------------------------------------------------------
+# 2. WHAT WE MEASURED OURSELVES on the real log (Steps 2a-2d)
+# -----------------------------------------------------------------------------
+# These are `verified` in the strongest available sense: we computed them, from a
+# public log, with a script in this repo, using a pipeline that reproduces the
+# published antibiotics-breach rate to within 0.1 percentage points (Step 2c).
+measured_from_sepsis_log:
+  applies_to: structure
+  caveat: >
+    Dutch hospital. Use these to shape the PROCESS - that a lab repeat-test loop
+    exists, that wards run on a daily cadence, that the final handoff before
+    discharge is the long one. Do not present the magnitudes as Indian figures.
+
+  lab_turnaround_er:
+    value: 13
+    unit: minutes
+    status: verified
+    source: "src/03_department_handoffs.py - median gap, group A/C/L -> group B"
+    note: "Stat bloods drawn at presentation. 1,049 observations."
+
+  lab_turnaround_ward:
+    value: [18.0, 35.5]
+    unit: hours
+    status: verified
+    source: "src/03_department_handoffs.py - median gap, ward groups -> group B"
+    note: >
+      Consistent across ~11 independent ward codes, which is what makes it a
+      systemic cadence rather than one bad ward. IMPORTANT: this interval fuses
+      "when the test was ordered" with "how fast the lab ran it" - the Step 1
+      limitation. It is evidence of a ~24h repeat-test CADENCE, not of lab speed.
+      The whole point of the SimPy generator is to stop fusing these.
+
+  repeat_test_interval_ward:
+    value: 24
+    unit: hours
+    status: verified
+    source: "src/03_department_handoffs.py - B->B median of non-zero gaps"
+    note: >
+      Lab-to-lab is 6,114 gaps, 44.6% of ALL waiting time in the log. 71.8% are
+      exactly zero (batch data entry); the remaining 1,722 have a 24.0h median.
+
+  final_handoff_to_discharge:
+    value: 32
+    unit: hours
+    p90: 102
+    status: verified
+    source: "src/03_department_handoffs.py - group B -> group E, 637 observations"
+    note: >
+      THE headline finding of Step 2: last lab result to discharge desk. This is
+      the structural analogue of the IRDAI 3-hour discharge rule - here it runs at
+      32 hours with no insurer involved at all. Carry this comparison into Step 6.
+
+  internal_vs_handoff_split:
+    value: {internal_pct: 45.0, handoff_pct: 55.0}
+    status: verified
+    source: "src/03_department_handoffs.py"
+    note: "55% of waiting time is BETWEEN departments, not inside them."
+
+# -----------------------------------------------------------------------------
+# 3. INDIAN HOSPITAL PROCESS - NOT YET SOURCED
+# -----------------------------------------------------------------------------
+# CLAUDE.md names the intended sources but the specific citations are not yet
+# locked. Ranges below come from the project brief, not from a document read in
+# full. They are PLACEHOLDERS and are marked as such.
+indian_process:
+  registration_wait:
+    value: [1.5, 2.0]
+    unit: hours
+    applies_to: magnitude
+    status: placeholder
+    source: "TODO - CAG performance audit of district hospitals, registration desk"
+    note: "Lock the exact CAG report number, year and table before citing."
+
+  consultation_wait:
+    value: [1.0, 2.0]
+    unit: hours
+    applies_to: magnitude
+    status: placeholder
+    source: "TODO - published outpatient process-mining literature"
+
+  pharmacy_wait:
+    value: [0.5, 1.0]
+    unit: hours
+    applies_to: magnitude
+    status: placeholder
+    source: "TODO - published outpatient process-mining literature"
+
+  ward_length_of_stay:
+    value: null
+    unit: days
+    applies_to: magnitude
+    status: placeholder
+    source: "TODO - needs an Indian source; do not reuse the Dutch figure"
+
+# -----------------------------------------------------------------------------
+# 4. THE INSURANCE BRANCH - the actual subject of the project
+# -----------------------------------------------------------------------------
+# CLAUDE.md: "Real root cause of delay is repeated document-query loops between
+# hospital insurance desk and TPA/insurer, not the clock itself."
+# That claim is the core hypothesis of the whole capstone, so it needs a real
+# source before any headline number rests on it.
+insurance_branch:
+  payment_mode_split:
+    value: {cashless: null, self_pay: null}
+    status: placeholder
+    source: "TODO - National Health Accounts / hospital chain disclosure"
+    note: "Needed to weight the synthetic population realistically."
+
+  preauth_query_loop_probability:
+    value: null
+    status: placeholder
+    source: "TODO - this is the project's central hypothesis and needs a real source"
+    note: >
+      The probability that a pre-auth or discharge-auth request comes back as a
+      document query rather than a decision. If this cannot be sourced, the
+      honest fallback is a declared SENSITIVITY RANGE swept in Step 5, reported
+      as "under assumption X the effect is Y" - never as a point estimate.
+
+  query_loop_turnaround:
+    value: null
+    unit: hours
+    status: placeholder
+    source: "TODO"
+
+  claims_settlement_ratio:
+    value: {"2022-23": 85.66, "2023-24": 82.46, "2024-25": 87.50}
+    unit: percent
+    status: secondary
+    source: "IRDAI annual report figures as recorded in CLAUDE.md project brief"
+    note: >
+      Carried from the project brief; the IRDAI annual reports have NOT been read
+      in full. Verify against the primary annual report before quoting, exactly as
+      the IRDAI circular above was verified.
+
+# -----------------------------------------------------------------------------
+# 5. ECONOMICS - for the Step 8 business case
+# -----------------------------------------------------------------------------
+economics:
+  arpob_benchmark:
+    value: 67361
+    unit: INR per occupied bed day
+    applies_to: external_benchmark
+    status: verified
+    source: >
+      Global Health Limited (Medanta), Investor Presentation for the third
+      quarter and nine months ended 31 December 2025, filed 4 February 2026 with
+      BSE (Scrip Code 543654) and NSE (Symbol MEDANTA) under Regulation 30 of
+      SEBI (LODR) Regulations 2015. Network ARPOB for Q3 FY2026.
+    quarter: "Q3 FY2026 (Oct-Dec 2025)"
+    filing_date: "2026-02-04"
+    company_definition: >
+      VERBATIM from the filing's own footnote: "ARPOB is calculated on Hospital
+      Revenues excluding Pharmacy and Other Income divided by Occupied bed days".
+    supporting_metrics:
+      occupied_bed_days: 154917
+      alos_days: 3.02
+      occupancy_pct: 59
+      installed_beds: 3550
+      yoy_change_pct: 9.9
+      matured_hospitals_arpob: 76414
+    note: >
+      THIS IS AN EXTERNAL INDIAN BENCHMARK. It is NOT the ARPOB of the Dutch
+      hospital whose log was analysed in Steps 1-2, and it is NOT a measured
+      property of the synthetic hospital. It is a real, citable Indian figure
+      used to give the bed-hour result an order of magnitude.
+
+      THREE CAVEATS THAT MUST BE QUOTED WITH IT:
+      1. Medanta is a quaternary, high-acuity chain (ALOS 3.02 days). Its ARPOB
+         sits at the UPPER end of Indian hospitals, so any rupee figure derived
+         from it is an optimistic benchmark, not a median Indian hospital.
+      2. The definition EXCLUDES pharmacy and other income, so the revenue base
+         is narrower than total hospital revenue - this pulls the estimate the
+         other way, and the two biases do not cancel in any known proportion.
+      3. Revenue is not profit, and a freed bed-hour only becomes revenue if a
+         patient is waiting to occupy it. ARPOB x bed-hours is an UPPER BOUND ON
+         OPPORTUNITY, never a cash saving.
+
+      A newer Q1 FY2027 figure of approximately INR 70,244 appears in secondary
+      coverage but could NOT be verified against the filing itself, so it is
+      deliberately not used. See the Tier A/Tier B rule established in Step 2c.
+
+  arpob_of_study_hospital:
+    value: null
+    unit: INR per occupied bed day
+    applies_to: magnitude
+    status: placeholder
+    source: "NOT AVAILABLE - the analysed log is a Dutch hospital with no disclosed ARPOB"
+    note: >
+      Kept as an explicit placeholder so the distinction is visible in the audit:
+      we have a benchmark to illustrate with, we do NOT have the study hospital's
+      own revenue per bed day, and no rupee figure may be presented as that
+      hospital's actual loss.
+
+# -----------------------------------------------------------------------------
+# 6. SIMULATION ASSUMPTIONS - the hospital we are choosing to model
+# -----------------------------------------------------------------------------
+# A simulator needs values that are NOT claims about the world: how many
+# registration clerks exist, how long a clerk takes with one patient. These are
+# properties of the hypothetical hospital being modelled. They are not findings,
+# they are not sourced, and pretending otherwise would be the exact failure this
+# file exists to prevent.
+#
+# So they get their own status: `assumption`.
+#   placeholder - a hole where a real source is expected and findable.
+#   assumption  - a declared modelling choice. Results are CONDITIONAL on it and
+#                 must be reported that way.
+#
+# Where an assumption stands in for something that really should be sourced, it
+# says so via `stands_in_for`, so the audit can report that link rather than
+# letting the assumption quietly discharge the obligation.
+#
+# SERVICE TIMES are triangular: [shortest, most likely, longest] in minutes.
+# Triangular because it is the distribution you can actually elicit from a person
+# who runs the desk - "best case, usual, bad day" - rather than one that needs
+# fitting to data we do not have.
+simulation_assumptions:
+
+  arrival_interval_mean:
+    value: 12
+    unit: minutes
+    status: assumption
+    source: "modelling choice - yields roughly 120 arrivals/day"
+
+  payment_mode_cashless_share:
+    value: 0.55
+    status: assumption
+    stands_in_for: insurance_branch.payment_mode_split
+    source: "modelling choice pending a real payer-mix source"
+
+  probability_admitted:
+    value: 0.35
+    status: assumption
+    source: "modelling choice - share of ER arrivals admitted to a ward"
+    note: >
+      For orientation only, the real Sepsis log ran at ~77% admitted, but that is
+      a sepsis-suspicion cohort and not comparable to general ER arrivals.
+
+  length_of_stay_days:
+    value: [2, 4, 9]
+    unit: days
+    status: assumption
+    stands_in_for: indian_process.ward_length_of_stay
+    source: "modelling choice - triangular"
+
+  capacity:
+    value:
+      registration_clerks: 3
+      triage_nurses: 2
+      doctors: 4
+      lab_stations: 12
+      beds: 260
+      insurance_desk_staff: 8
+      tpa_reviewers: 30
+    status: assumption
+    source: "modelling choice, constrained by a queueing-stability check"
+    note: >
+      Capacity is what makes queues form. These numbers ARE the experiment: the
+      bottleneck the pipeline finds is a consequence of them, so they must be
+      reported alongside any result, and varied to show the finding is not an
+      artefact of one arbitrary configuration.
+
+      THESE ARE NOT FREE CHOICES. Every resource must satisfy rho < 1, where
+      rho = (arrival rate x mean service time) / capacity. If rho >= 1 the queue
+      grows without bound and the simulation measures a BACKLOG BUILDING UP, not
+      a hospital operating - and any comparison drawn from it is an artefact of
+      run length rather than a finding.
+
+      The first version of this file used beds: 60, lab_stations: 6,
+      insurance_desk_staff: 2, tpa_reviewers: 5. All four were unstable - beds
+      carried an offered load of ~210 against a capacity of 60 - which produced
+      an 88-hour bed wait that was pure transient. `src/07_generate_synthetic_log.py`
+      now computes rho for every resource before running and refuses to proceed
+      if any is >= 1, so this class of error cannot recur silently.
+
+  service_times:
+    value:
+      registration: [3, 6, 15]
+      triage: [4, 8, 20]
+      consultation: [8, 15, 35]
+      lab_test: [20, 45, 120]
+      insurance_desk_prepare_request: [15, 30, 60]
+      tpa_review: [30, 60, 240]
+      tpa_document_query_rework: [60, 180, 480]
+      billing_self_pay: [20, 40, 90]
+    unit: minutes
+    status: assumption
+    source: "modelling choice - triangular [shortest, usual, longest]"
+
+  ward_round_interval:
+    value: 24
+    unit: hours
+    status: assumption
+    source: "shaped by measured_from_sepsis_log.repeat_test_interval_ward"
+    note: "Structure borrowed from the real log; see the transfer assumption above."
+
+# -----------------------------------------------------------------------------
+# 7. SENSITIVITY PARAMETERS - swept, never quoted as point estimates
+# -----------------------------------------------------------------------------
+# The project's central hypothesis (CLAUDE.md): the real cause of discharge delay
+# is repeated document-query loops between the hospital insurance desk and the
+# TPA, not the regulatory clock itself.
+#
+# We could not source a value for how often that loop fires. The honest response
+# is NOT to pick a plausible number - it is to sweep the range and report where
+# the conclusion holds and where it flips.
+sensitivity:
+  document_query_probability:
+    value: 0.45
+    sweep: [0.0, 0.15, 0.30, 0.45, 0.60, 0.75]
+    status: assumption
+    stands_in_for: insurance_branch.preauth_query_loop_probability
+    source: "UNSOURCED - swept, not estimated"
+    note: >
+      Probability that a submitted authorization request returns as a document
+      query instead of a decision. `value` is the baseline used for a single run;
+      `sweep` is what Step 5 must actually report across. Any headline number
+      quoted from a single value of this parameter is a misuse of this study.
+
+  max_query_loops:
+    value: 4
+    status: assumption
+    source: "modelling choice - cap so the simulation terminates"

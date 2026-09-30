@@ -1,0 +1,21 @@
+
+============================================================================================
+DIAGNOSIS INPUT - Hospital Billing - Event Log.xes.gz
+============================================================================================
+  findings available : 11
+  forbidden claims   : 4
+  distinct numbers   : 17
+
+============================================================================================
+CALLING THE MODEL
+============================================================================================
+  context check: ~1,426 prompt tokens vs 16,384 available
+
+============================================================================================
+VERIFICATION
+============================================================================================
+  claims checked : 3
+  forbidden claims made: X-GRANULARITY
+
+  REJECTED. Nothing written - an unverified diagnosis is worse
+  than none, because it reads exactly like a verified one.

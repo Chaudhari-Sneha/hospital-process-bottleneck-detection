@@ -1,0 +1,28 @@
+id,size,activities,cases,noise,defect_type,variant,target_edge,extract_ok,ground_truth_hidden,gt_attainable,pipeline_top_edge,pipeline_recovered,material,materiality_p,nobottleneck_emitted,model_call_failed,grounding_accepted,grounding_violation,abstained,diagnosis_correct,secondary_edge,secondary_recovered,diagnosis_named
+c1,small,6,150,low,none,control,,True,True,True,ACT00  ->  ACT01,,False,0.5835,True,False,False,missing_sections,True,,,,
+c2,medium,10,400,low,none,control,,True,True,True,ACT00  ->  ACT01,,False,1.0,True,False,False,missing_sections,True,,,,
+c3,large,14,800,low,none,control,,True,True,True,ACT10  ->  ACT11,,False,0.7581,True,False,False,missing_sections,True,,,,
+s01,small,6,150,low,edge_delay,decoy_median,ACT01  ->  ACT02,True,True,True,ACT01  ->  ACT02,True,True,0.0025,False,False,True,,False,True,,,True
+s02,small,6,150,low,self_loop,competing,ACT04  ->  ACT04,True,True,True,ACT04  ->  ACT04,True,True,0.0025,False,False,True,,False,True,,,True
+s03,small,6,150,low,routing,zero_median,ACT02  ->  ACT04,True,True,True,ACT02  ->  ACT04,True,True,0.0025,False,False,True,,False,True,,,True
+s04,small,6,150,low,handoff,two_defects,ACT01  ->  ACT02,True,True,True,ACT01  ->  ACT02,True,True,0.0025,False,False,True,,False,True,ACT03  ->  ACT04,True,True
+s05,small,6,150,high,edge_delay,plain,ACT04  ->  ACT05,True,True,True,ACT04  ->  ACT05,True,True,0.0025,False,False,False,forbidden:X-LIFECYCLE,True,,,,
+s06,small,6,150,high,self_loop,decoy_median,ACT02  ->  ACT02,True,True,True,ACT02  ->  ACT02,True,True,0.0025,False,False,True,,False,True,,,True
+s07,small,6,150,high,routing,competing,ACT02  ->  ACT04,True,True,True,ACT02  ->  ACT04,True,True,0.0025,False,False,False,forbidden:X-LIFECYCLE,True,,,,
+s08,small,6,150,high,handoff,zero_median,ACT00  ->  ACT01,True,True,True,ACT00  ->  ACT01,True,True,0.0025,False,False,True,,False,True,,,True
+s09,medium,10,400,low,edge_delay,two_defects,ACT02  ->  ACT03,True,True,True,ACT02  ->  ACT03,True,True,0.0025,False,False,True,,False,True,ACT07  ->  ACT08,True,True
+s10,medium,10,400,low,self_loop,plain,ACT04  ->  ACT04,True,True,True,ACT04  ->  ACT04,True,True,0.0025,False,False,True,,False,True,,,True
+s11,medium,10,400,low,routing,decoy_median,ACT04  ->  ACT06,True,True,True,ACT04  ->  ACT06,True,True,0.0025,False,False,True,,False,True,,,True
+s12,medium,10,400,low,handoff,competing,ACT08  ->  ACT09,True,True,True,ACT08  ->  ACT09,True,True,0.0025,False,False,False,forbidden:X-LIFECYCLE,True,,,,
+s13,medium,10,400,high,edge_delay,zero_median,ACT03  ->  ACT04,True,True,True,ACT03  ->  ACT04,True,True,0.0025,False,False,True,,False,True,,,True
+s14,medium,10,400,high,self_loop,two_defects,ACT06  ->  ACT06,True,True,True,ACT06  ->  ACT06,True,True,0.0025,False,False,True,,False,True,ACT04  ->  ACT05,True,True
+s15,medium,10,400,high,routing,plain,ACT04  ->  ACT06,True,True,True,ACT04  ->  ACT06,True,True,0.0025,False,False,False,unsupported_numbers,True,,,,
+s16,medium,10,400,high,handoff,decoy_median,ACT02  ->  ACT03,True,True,True,ACT02  ->  ACT03,True,True,0.0025,False,False,True,,False,True,,,True
+s17,large,14,800,low,edge_delay,competing,ACT03  ->  ACT04,True,True,True,ACT03  ->  ACT04,True,True,0.0025,False,False,True,,False,True,,,True
+s18,large,14,800,low,self_loop,zero_median,ACT07  ->  ACT07,True,True,True,ACT07  ->  ACT07,True,True,0.0025,False,False,True,,False,True,,,True
+s19,large,14,800,low,routing,two_defects,ACT05  ->  ACT07,True,True,True,ACT05  ->  ACT07,True,True,0.0025,False,False,False,forbidden:X-LIFECYCLE,True,,ACT01  ->  ACT02,True,
+s20,large,14,800,low,handoff,plain,ACT11  ->  ACT12,True,True,True,ACT11  ->  ACT12,True,True,0.0025,False,False,True,,False,True,,,True
+s21,large,14,800,high,edge_delay,decoy_median,ACT07  ->  ACT08,True,True,True,ACT07  ->  ACT08,True,True,0.0025,False,False,True,,False,True,,,True
+s22,large,14,800,high,self_loop,competing,ACT08  ->  ACT08,True,True,True,ACT08  ->  ACT08,True,True,0.0025,False,False,True,,False,True,,,True
+s23,large,14,800,high,routing,zero_median,ACT05  ->  ACT07,True,True,True,ACT05  ->  ACT07,True,True,0.0025,False,False,True,,False,True,,,True
+s24,large,14,800,high,handoff,two_defects,ACT07  ->  ACT08,True,True,True,ACT07  ->  ACT08,True,True,0.0025,False,False,True,,False,True,ACT00  ->  ACT01,True,True

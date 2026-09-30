@@ -1,0 +1,332 @@
+{
+  "log": "Sepsis Cases - Event Log.xes.gz",
+  "generated_from": {
+    "events": 15214,
+    "cases": 1050,
+    "resource_column": "org:group",
+    "total_measured_waiting_h": 145855.57
+  },
+  "capabilities": {
+    "lifecycle_values": [
+      "complete"
+    ],
+    "can_separate_wait_from_work": false,
+    "resource_column": "org:group",
+    "can_measure_handoffs": true,
+    "n_resource_values": 26,
+    "resource_missing_share": 0.0,
+    "same_resource_transition_share": 0.5024,
+    "resource_granularity": "department-like",
+    "handoff_split_meaningful": true
+  },
+  "materiality": {
+    "testable": true,
+    "most_disproportionate_edge": "Admission NC  ->  Release A",
+    "disproportion_ratio": 7.4,
+    "null_median_ratio": 1.97,
+    "fwer_cutoff_ratio": 2.84,
+    "material_edges": [
+      {
+        "edge": "Admission NC  ->  Release A",
+        "disproportion_ratio": 7.4,
+        "total_hours": 9102.36,
+        "occurrences": 117,
+        "median_hours": 67.741,
+        "share_of_cases": 0.1114,
+        "signature": "handoff",
+        "p_value": 0.0025
+      },
+      {
+        "edge": "CRP  ->  CRP",
+        "disproportion_ratio": 4.53,
+        "total_hours": 15113.57,
+        "occurrences": 317,
+        "median_hours": 48.0,
+        "share_of_cases": 0.3019,
+        "signature": "rework",
+        "p_value": 0.0025
+      },
+      {
+        "edge": "Leucocytes  ->  Release A",
+        "disproportion_ratio": 4.47,
+        "total_hours": 10572.02,
+        "occurrences": 225,
+        "median_hours": 30.25,
+        "share_of_cases": 0.2143,
+        "signature": "handoff",
+        "p_value": 0.0025
+      },
+      {
+        "edge": "CRP  ->  Release A",
+        "disproportion_ratio": 4.46,
+        "total_hours": 15106.92,
+        "occurrences": 322,
+        "median_hours": 31.25,
+        "share_of_cases": 0.3067,
+        "signature": "handoff",
+        "p_value": 0.0025
+      },
+      {
+        "edge": "Leucocytes  ->  Leucocytes",
+        "disproportion_ratio": 3.31,
+        "total_hours": 15936.52,
+        "occurrences": 458,
+        "median_hours": 24.0,
+        "share_of_cases": 0.4362,
+        "signature": "rework",
+        "p_value": 0.015
+      },
+      {
+        "edge": "Admission NC  ->  CRP",
+        "disproportion_ratio": 3.2,
+        "total_hours": 12416.3,
+        "occurrences": 369,
+        "median_hours": 24.093,
+        "share_of_cases": 0.3514,
+        "signature": "handoff",
+        "p_value": 0.0274
+      },
+      {
+        "edge": "Admission NC  ->  Leucocytes",
+        "disproportion_ratio": 3.11,
+        "total_hours": 13356.94,
+        "occurrences": 408,
+        "median_hours": 24.97,
+        "share_of_cases": 0.3886,
+        "signature": "handoff",
+        "p_value": 0.0274
+      }
+    ],
+    "n_material": 7,
+    "p_value": 0.0025,
+    "n_permutations": 400,
+    "material": true
+  },
+  "findings": [
+    {
+      "id": "S1",
+      "category": "1. Process structure",
+      "finding": "The log holds 15,214 events across 1,050 cases and 16 distinct activities.",
+      "evidence_source": "18_process_profile.load_log",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "The log holds 15,214 events across 1,050 cases and 16 distinct activities.",
+      "caveat": "Descriptive only - says nothing about whether the process is good.",
+      "patterns": "[]"
+    },
+    {
+      "id": "S2",
+      "category": "1. Process structure",
+      "finding": "295 of 1,050 cases re-enter the process after ending it, producing 296 additional episodes, so the log contains 1,346 episodes of care in total.",
+      "evidence_source": "03_department_handoffs.add_episodes",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "295 cases re-entered the process",
+      "caveat": "Time between episodes is time OUTSIDE the process and is excluded from every waiting figure below.",
+      "patterns": "[]"
+    },
+    {
+      "id": "S4",
+      "category": "1. Process structure",
+      "finding": "26 departments perform only 8 distinct jobs, judged by which activities each one actually carries out.",
+      "evidence_source": "18_process_profile.cluster_departments_by_behaviour",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "the 26 departments reduce to 8 functional roles",
+      "caveat": "Roles are grouped by behaviour, not by name. Two departments with the same signature may still be organisationally separate.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T1",
+      "category": "2. Where time is lost",
+      "finding": "The single largest absorber of time is 'CRP  ->  Leucocytes': 746.9 days in total across 1,445 occurrences (12.3% of all measured waiting), median 0 min.",
+      "evidence_source": "03_department_handoffs.summarise(edge)",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "'CRP  ->  Leucocytes' absorbs the most total time (12.3% of measured waiting)",
+      "caveat": "Ranked by TOTAL time absorbed, not by median. A slow step that happens rarely is a smaller problem than a quick one that happens constantly.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T3",
+      "category": "2. Where time is lost",
+      "finding": "The step most out of proportion to how often it happens is 'Admission NC  ->  Release A': it absorbs 7.4x the time its share of transitions would give it (permutation test, p = 0.0025). Classified as handoff because it crosses from one department to another.",
+      "evidence_source": "20_extract_findings.bottleneck_materiality",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "400 permutations",
+      "allowed_wording": "'Admission NC  ->  Release A' is slow relative to how often it occurs",
+      "caveat": "This is a DIFFERENT question from the largest absorber of time. A step can dominate the total simply by happening constantly. Says the disproportion is real, not that it is fixable, costly or clinically important.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T4",
+      "category": "2. Where time is lost",
+      "finding": "A further step is also out of proportion: 'CRP  ->  CRP' absorbs 4.53x the time its share of transitions would give it (629.7 days across 317 occurrences, p = 0.0025). Classified as rework because it is a step immediately repeating itself.",
+      "evidence_source": "20_extract_findings.bottleneck_materiality",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "400 permutations, family-wise error controlled",
+      "allowed_wording": "'CRP  ->  CRP' is also slow relative to how often it occurs",
+      "caveat": "A SECONDARY bottleneck, held to the same evidence bar as the primary - every step was tested against the same threshold, so this is not a weaker claim. Fixing the largest step will not address this one.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T5",
+      "category": "2. Where time is lost",
+      "finding": "A further step is also out of proportion: 'Leucocytes  ->  Release A' absorbs 4.47x the time its share of transitions would give it (440.5 days across 225 occurrences, p = 0.0025). Classified as handoff because it crosses from one department to another.",
+      "evidence_source": "20_extract_findings.bottleneck_materiality",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "400 permutations, family-wise error controlled",
+      "allowed_wording": "'Leucocytes  ->  Release A' is also slow relative to how often it occurs",
+      "caveat": "A SECONDARY bottleneck, held to the same evidence bar as the primary - every step was tested against the same threshold, so this is not a weaker claim. Fixing the largest step will not address this one.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T6",
+      "category": "2. Where time is lost",
+      "finding": "A further step is also out of proportion: 'CRP  ->  Release A' absorbs 4.46x the time its share of transitions would give it (629.5 days across 322 occurrences, p = 0.0025). Classified as handoff because it crosses from one department to another.",
+      "evidence_source": "20_extract_findings.bottleneck_materiality",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "400 permutations, family-wise error controlled",
+      "allowed_wording": "'CRP  ->  Release A' is also slow relative to how often it occurs",
+      "caveat": "A SECONDARY bottleneck, held to the same evidence bar as the primary - every step was tested against the same threshold, so this is not a weaker claim. Fixing the largest step will not address this one.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T7",
+      "category": "2. Where time is lost",
+      "finding": "A further step is also out of proportion: 'Leucocytes  ->  Leucocytes' absorbs 3.31x the time its share of transitions would give it (664.0 days across 458 occurrences, p = 0.015). Classified as rework because it is a step immediately repeating itself.",
+      "evidence_source": "20_extract_findings.bottleneck_materiality",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "400 permutations, family-wise error controlled",
+      "allowed_wording": "'Leucocytes  ->  Leucocytes' is also slow relative to how often it occurs",
+      "caveat": "A SECONDARY bottleneck, held to the same evidence bar as the primary - every step was tested against the same threshold, so this is not a weaker claim. Fixing the largest step will not address this one.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T8",
+      "category": "2. Where time is lost",
+      "finding": "A further step is also out of proportion: 'Admission NC  ->  CRP' absorbs 3.2x the time its share of transitions would give it (517.3 days across 369 occurrences, p = 0.0274). Classified as handoff because it crosses from one department to another.",
+      "evidence_source": "20_extract_findings.bottleneck_materiality",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "400 permutations, family-wise error controlled",
+      "allowed_wording": "'Admission NC  ->  CRP' is also slow relative to how often it occurs",
+      "caveat": "A SECONDARY bottleneck, held to the same evidence bar as the primary - every step was tested against the same threshold, so this is not a weaker claim. Fixing the largest step will not address this one.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T-MORE",
+      "category": "2. Where time is lost",
+      "finding": "1 further step(s) also cleared the same bar and are listed in the `materiality` block of this file rather than as findings.",
+      "evidence_source": "20_extract_findings.bottleneck_materiality",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "1 further steps also qualified",
+      "caveat": "Omitted for readability, not for weakness of evidence. They met the identical threshold.",
+      "patterns": "[]"
+    },
+    {
+      "id": "T2",
+      "category": "2. Where time is lost",
+      "finding": "The top 5 of 57 steps account for 53.1% of all measured waiting time. If waiting were spread evenly across steps, 5 of 57 would account for 8.8%.",
+      "evidence_source": "03_department_handoffs.summarise(edge)",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "the top 5 steps hold 53.1% of the waiting (even spread would give 8.8%)",
+      "caveat": "Compare the two figures before calling this concentration. Concentration is a reason to target those steps first; it is not evidence that they can be shortened.",
+      "patterns": "[]"
+    },
+    {
+      "id": "R1",
+      "category": "3. Rework",
+      "finding": "6.8% of all steps are immediately repeated, most often 'Leucocytes' (458 times).",
+      "evidence_source": "18_process_profile.detect_rework",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "6.8% of steps are immediate repeats",
+      "caveat": "A repeat is not automatically waste - some are clinically or procedurally required. It marks where to look, not a fault.",
+      "patterns": "[]"
+    },
+    {
+      "id": "Q1",
+      "category": "4. Data quality",
+      "finding": "Lifecycle information present: ['complete'].",
+      "evidence_source": "18_process_profile.detect_capabilities",
+      "kind": "measured",
+      "parameter_dependence": "none",
+      "robustness": "single log, as measured",
+      "allowed_wording": "Lifecycle information present: ['complete'].",
+      "caveat": "Determines whether waiting can be separated from work.",
+      "patterns": "[]"
+    },
+    {
+      "id": "X-LIFECYCLE",
+      "category": "5. Cannot be claimed from this log",
+      "finding": "that the delay is queueing rather than processing (or the reverse), or any split between the two",
+      "evidence_source": "18_process_profile.detect_capabilities",
+      "kind": "limitation",
+      "parameter_dependence": "none",
+      "robustness": "structural",
+      "allowed_wording": "(must not be claimed)",
+      "caveat": "this log records only ['complete'], so there is no start timestamp. Elapsed time between events is all that exists; it cannot be decomposed.",
+      "patterns": "[\"\\\\bqueue?ing\\\\b\", \"\\\\bqueued\\\\b\", \"\\\\bqueue\\\\b\", \"\\\\btime spent working\\\\b\", \"\\\\bservice time\\\\b\", \"\\\\bprocess\\\\w*\\\\s+(?:time\\\\s+)?(?:versus|vs\\\\.?|rather than|not|compared (?:to|with))\\\\s+(?:wait|queu)\", \"\\\\b(?:wait\\\\w*|queu\\\\w*)\\\\s+(?:time\\\\s+)?(?:versus|vs\\\\.?|rather than|not|compared (?:to|with))\\\\s+process\", \"\\\\bsplit between (?:waiting|queu\\\\w+) and process\", \"\\\\b(add|adding|more|extra|additional|adjust\\\\w*)\\\\s+(staff\\\\w*|resourc\\\\w*|capacity|headcount)\\\\b\", \"\\\\bincreas\\\\w+\\\\s+(the\\\\s+)?(staff\\\\w*|capacity|headcount|resourc\\\\w*)\\\\b\", \"\\\\bhir\\\\w+\\\\s+(more\\\\s+)?(staff|people|nurses|clinicians)\\\\b\", \"\\\\bstaffing\\\\s+(level|increase|review)\\\\w*\\\\b\"]"
+    },
+    {
+      "id": "X-CAUSE",
+      "category": "5. Cannot be claimed from this log",
+      "finding": "that any measured delay was CAUSED by the step it is attributed to",
+      "evidence_source": "18_process_profile.detect_capabilities",
+      "kind": "limitation",
+      "parameter_dependence": "none",
+      "robustness": "structural",
+      "allowed_wording": "(must not be claimed)",
+      "caveat": "this is an observational event log. It records when things happened, not why. Causes may be proposed as hypotheses and must be labelled as such.",
+      "patterns": "[\"\\\\bcaused by\\\\b\", \"\\\\bbecause of the\\\\b\", \"\\\\bis due to\\\\b\", \"\\\\bthe cause is\\\\b\", \"\\\\bresponsible for the delay\\\\b\"]"
+    }
+  ],
+  "forbidden_claims": [
+    {
+      "id": "X-LIFECYCLE",
+      "patterns": [
+        "\\bqueue?ing\\b",
+        "\\bqueued\\b",
+        "\\bqueue\\b",
+        "\\btime spent working\\b",
+        "\\bservice time\\b",
+        "\\bprocess\\w*\\s+(?:time\\s+)?(?:versus|vs\\.?|rather than|not|compared (?:to|with))\\s+(?:wait|queu)",
+        "\\b(?:wait\\w*|queu\\w*)\\s+(?:time\\s+)?(?:versus|vs\\.?|rather than|not|compared (?:to|with))\\s+process",
+        "\\bsplit between (?:waiting|queu\\w+) and process",
+        "\\b(add|adding|more|extra|additional|adjust\\w*)\\s+(staff\\w*|resourc\\w*|capacity|headcount)\\b",
+        "\\bincreas\\w+\\s+(the\\s+)?(staff\\w*|capacity|headcount|resourc\\w*)\\b",
+        "\\bhir\\w+\\s+(more\\s+)?(staff|people|nurses|clinicians)\\b",
+        "\\bstaffing\\s+(level|increase|review)\\w*\\b"
+      ],
+      "must_not_claim": "that the delay is queueing rather than processing (or the reverse), or any split between the two",
+      "because": "this log records only ['complete'], so there is no start timestamp. Elapsed time between events is all that exists; it cannot be decomposed."
+    },
+    {
+      "id": "X-CAUSE",
+      "patterns": [
+        "\\bcaused by\\b",
+        "\\bbecause of the\\b",
+        "\\bis due to\\b",
+        "\\bthe cause is\\b",
+        "\\bresponsible for the delay\\b"
+      ],
+      "must_not_claim": "that any measured delay was CAUSED by the step it is attributed to",
+      "because": "this is an observational event log. It records when things happened, not why. Causes may be proposed as hypotheses and must be labelled as such."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+magnitude_x_background,scenarios_with_attainable_answer,excluded_no_detectable_defect,recovered,recovery_pct
+25.0,24,0,24,100.0
+8.0,24,0,24,100.0
+4.0,21,3,21,100.0
+2.0,18,6,18,100.0
+1.0,18,6,18,100.0
+0.5,18,6,18,100.0
