@@ -163,6 +163,10 @@ defect ranks **10th** by a naive `median × count` metric and **1st** by total t
 
 Each of these is enforced in code, not noted in prose:
 
+- **Name a bottleneck in a process that has none.** A permutation test decides
+  whether any step absorbs more than its share of the time; when none does, the
+  claim is forbidden rather than ranked. Some step is always the slowest, which
+  is not the same as a problem.
 - **Separate queueing from processing** on a log without start timestamps. The
   Sepsis log records only `complete` events, so the claim is forbidden.
 - **Attribute delay to a department** when the resource column names individuals,
@@ -271,6 +275,13 @@ it — so any of these work:
 deployed server. A hosted copy of this app needs Groq (or another reachable
 endpoint) for the interpretation layer; the analysis itself needs no model at all.
 
+**On a shared deployment, each visitor supplies their own key** in the sidebar.
+The app does not read one from `.env` or Streamlit Secrets there, so putting a
+key in Secrets has no effect: it would otherwise let any stranger who opened the
+page spend the owner's quota, and one abusive visitor exhaust it for everyone.
+Deploying anywhere other than Streamlit Community Cloud or Hugging Face Spaces,
+set `BOTTLENECK_SHARED=1` so the app knows it is public.
+
 Model availability on Groq differs per account, so check what your own key
 serves rather than trusting any list:
 
@@ -279,11 +290,8 @@ python src/check_api_key.py          # verifies the key AND lists its models
 ```
 
 ```bash
-# local: create a file called .env containing one line (no quotes)
+# create a file called .env containing one line (no quotes)
 #   GROQ_API_KEY=gsk_...             # free key from console.groq.com
-
-# on Streamlit Community Cloud: Settings -> Secrets
-#   GROQ_API_KEY = "gsk_..."
 
 python src/21_diagnose.py --findings outputs/20_findings.json --diagnose   --provider openai-compat --base-url https://api.groq.com/openai/v1   --model openai/gpt-oss-120b --api-key-env GROQ_API_KEY
 ```

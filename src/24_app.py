@@ -109,12 +109,21 @@ def is_hosted() -> bool:
     """
     Are we running on a shared host rather than the author's machine?
 
-    This matters for two things that are fine locally and not fine in public:
-    whose API key gets spent, and whether a stranger's uploaded file is kept on
-    disk afterwards. Streamlit Cloud sets this variable; the check is
-    conservative, so anything unrecognised is treated as hosted.
+    This decides two things that are fine locally and not fine in public: whose
+    API key gets spent, and whether a stranger's uploaded file stays on disk.
+
+    The detection is an ALLOWLIST of signals the known platforms set, so it
+    defaults to LOCAL - an unrecognised host is treated as this machine. That is
+    the permissive direction and it is a deliberate trade: closing it would
+    demand a typed API key on every local run, for a risk that needs the owner
+    to have put a key somewhere a deployed copy can reach. `.env` is gitignored,
+    so a fresh deployment has none by default.
+
+    Deploying anywhere other than the platforms named below, set
+    BOTTLENECK_SHARED=1. It forces shared behaviour with no detection involved.
     """
-    return bool(os.environ.get("STREAMLIT_RUNTIME_ENV")
+    return bool(os.environ.get("BOTTLENECK_SHARED")   # explicit, any platform
+                or os.environ.get("STREAMLIT_RUNTIME_ENV")
                 or os.environ.get("HOSTNAME", "").startswith("streamlit")
                 or os.environ.get("SPACE_ID"))          # Hugging Face Spaces
 

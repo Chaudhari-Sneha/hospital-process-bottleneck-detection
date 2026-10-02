@@ -1,9 +1,10 @@
 # Installed with pip into the `hospital` conda env.
-# Create the env first (brings in the system Graphviz binary, which pm4py needs
-# for process-map rendering and which pip alone cannot provide on Windows):
+#
+# Create the env with conda first. That is not a preference: pm4py renders
+# process maps through the Graphviz BINARY, which pip cannot provide on Windows.
 #
 #   conda create -n hospital -c conda-forge python=3.12 pandas numpy scipy \
-#       matplotlib graphviz python-graphviz jupyter ipykernel -y
+#       matplotlib graphviz python-graphviz -y
 #   conda activate hospital
 #   pip install -r requirements.txt
 
@@ -11,29 +12,36 @@ pm4py==2.7.23.8
 simpy==4.1.2
 
 # config/calibration.yaml is read by src/06 and src/14, so this is a direct
-# dependency. It was reaching the author's machine only through jupyter, which
-# the pipeline does not need - so a clean `pip install -r requirements.txt`
-# could leave it out and fail on a file the project treats as central.
+# dependency. It was reaching this machine only through jupyter, which the
+# pipeline does not need - so a clean install could omit it and fail on a file
+# the project treats as central.
 pyyaml==6.0.3
 
-streamlit==1.64.0  # Step 7 dashboard (additive install - does not move the pinned stack)
+# Runs both the upload app (src/24) and the results dashboard (src/16).
+streamlit==1.64.0
 
-anthropic==1.7.0   # src/15 --narrate, Claude backend (needs a credential)
 
-# NO PACKAGE NEEDED for Groq, the hosted backend the app defaults to. It speaks
-# an OpenAI-compatible API, which the same stdlib urllib transport already
-# handles - only a free key from console.groq.com is required.
+# ---------------------------------------------------------------------------
+# AI BACKENDS - nothing below is needed to run the analysis.
+#
+# Every finding is computed by pm4py and pandas. The model only writes prose
+# around numbers it is handed, so the whole pipeline, the guard self-tests and
+# the ground-truth sweep all run with no backend at all.
+# ---------------------------------------------------------------------------
 
-# NO PACKAGE NEEDED for the free local backend: `src/15 --narrate
-# --provider openai-compat --base-url http://localhost:11434/v1 --model <name>`
-# talks to Ollama over stdlib urllib. Install Ollama separately:
-#   winget install Ollama.Ollama && ollama pull llama3.1:8b
-# The 4096-token default context TRUNCATES this project's ~4,300-token payload
-# silently, so create a larger one:
-#   (create a file called Modelfile containing these two lines)
+# Groq (hosted, free tier) - NO PACKAGE REQUIRED.
+#   The default backend, and the only one that works on a deployed server.
+#   It speaks an OpenAI-compatible API, which src/15 already reaches over
+#   stdlib urllib. Needs only a free key from console.groq.com, placed in a
+#   gitignored `.env` as GROQ_API_KEY=... or exported into the environment.
+#   `python src/check_api_key.py` verifies a key and lists the models it may use.
+
+# Ollama (local) - NO PACKAGE REQUIRED.
+#   Same urllib transport, pointed at localhost. Nothing leaves the machine,
+#   but Ollama does not exist on a hosted server, so this is local-only.
+#     winget install Ollama.Ollama && ollama pull llama3.1:8b
+#   The 4096-token default context silently TRUNCATES this project's ~4,300-token
+#   payload, so build a larger one (Modelfile with these two lines):
 #       FROM llama3.1:8b
 #       PARAMETER num_ctx 16384
-#   ollama create llama3.1-16k -f Modelfile
-
-# Never adopted:
-# scikit-learn     # optional risk prediction - not used; no model was built
+#     ollama create llama3.1-16k -f Modelfile
