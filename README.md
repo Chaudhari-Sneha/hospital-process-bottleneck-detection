@@ -4,6 +4,12 @@
 where every number is computed by code, and the AI layer is mechanically prevented
 from inventing any of its own.**
 
+### [▶ Try it live](https://hospital-process-bottleneck-detection-vmp5kbhd4g9v7tqewgsjda.streamlit.app)
+
+No installation, no sign-up. Bring your own event log, or use the sample below.
+
+To run it locally instead:
+
 ```bash
 conda activate hospital
 python -m streamlit run src/24_app.py
