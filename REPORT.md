@@ -568,6 +568,25 @@ producing near-circular reasoning and ignoring the most actionable finding
 available to it. That is a statement about the model, not the architecture, the
 same payload sent to a stronger model meets the same guard.
 
+### Rejection is not final, and that is worth stating
+
+The guard is deterministic; the model is not. The same evidence produces
+different prose each run, so a diagnosis rejected once can be accepted on the
+next attempt — §9 measured this directly, 19 of 27 accepted on identical
+payloads. Anyone using the tool can therefore run it again after a rejection.
+
+This does not weaken what the guard certifies. An accepted diagnosis has had
+every number checked against the payload and every pattern checked against the
+prohibitions, whether it was the first attempt or the third; retrying discards a
+draft rather than excusing one. What it cannot do is make a rejected claim true.
+
+The honest caveat is a selection effect: someone who retries until acceptance is
+selecting for output that passes, which favours prose making fewer checkable
+assertions. The guard rewards caution, and caution is not the same as accuracy.
+This is the same boundary as above, reached from the other side — the mechanism
+filters what is *sayable* from the evidence, and never judges whether the
+reasoning around it is sound.
+
 ---
 
 ## 12. Business case
