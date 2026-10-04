@@ -509,7 +509,22 @@ if provider == "Local (Ollama)":
              "--model", model]
 elif provider == "Groq (free tier)":
     if not groq_key_available():
-        st.error("No `GROQ_API_KEY` available — set it before running.")
+        # The remedy differs by deployment, so the message has to. Naming an
+        # environment variable to a visitor who has no shell to set it in is
+        # not a remedy, and this message was written before the hosted path
+        # existed - it sent people looking for a setting that is not there.
+        if is_hosted():
+            st.error(
+                "**Enter your Groq API key in the sidebar**, just below the "
+                "model picker. This is a shared deployment, so it does not "
+                "supply one - a free key from console.groq.com takes a minute "
+                "and needs no card. Or choose **None (analysis only)**: every "
+                "finding above was computed without a model.")
+        else:
+            st.error(
+                "No `GROQ_API_KEY` found. Put it in a `.env` file at the "
+                "project root as `GROQ_API_KEY=gsk_...` (that file is "
+                "gitignored), or export it into the environment, then rerun.")
         st.stop()
     # --api-key-env names the variable to read; the key itself is never passed
     # on the command line, where it would show up in process listings.
